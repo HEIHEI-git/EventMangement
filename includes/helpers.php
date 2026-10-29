@@ -75,6 +75,22 @@ function canManageAttendees(PDO $pdo, array $event): bool {
 }
 function categories(): array { return ['Music','Film','Arts','Technology','Community','Outdoors','Learning','Sports','Social','Other']; }
 function artworkChoices(): array { return ['concert','cinema','gallery','digital','city','nature','learning','sports','social','other']; }
+/** Default illustration retained in the database when a custom cover is uploaded. */
+function categoryArtwork(string $category): string {
+    return match ($category) {
+        'Music' => 'concert',
+        'Film' => 'cinema',
+        'Arts' => 'gallery',
+        'Technology' => 'digital',
+        'Community' => 'city',
+        'Outdoors' => 'nature',
+        'Learning' => 'learning',
+        'Sports' => 'sports',
+        'Social' => 'social',
+        'Other' => 'other',
+        default => 'city',
+    };
+}
 function artworkLabel(string $art): string {
     return match ($art) {
         'concert' => 'Concert',

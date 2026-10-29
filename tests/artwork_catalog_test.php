@@ -36,6 +36,16 @@ if (artworkLabel('unknown') !== 'Concert' || artworkPath('unknown') !== 'assets/
     fwrite(STDERR, "FAIL invalid artwork fallback\n");
     $failures++;
 }
+foreach (['Music' => 'concert', 'Film' => 'cinema', 'Arts' => 'gallery',
+    'Technology' => 'digital', 'Community' => 'city', 'Outdoors' => 'nature',
+    'Learning' => 'learning', 'Sports' => 'sports', 'Social' => 'social',
+    'Other' => 'other'] as $category => $artwork) {
+    if (categoryArtwork($category) !== $artwork) {
+        fwrite(STDERR, "FAIL uploaded cover fallback: {$category}\n");
+        $failures++;
+    }
+}
+
 if ($failures) {
     fwrite(STDERR, "{$failures} artwork catalogue tests failed\n");
     exit(1);

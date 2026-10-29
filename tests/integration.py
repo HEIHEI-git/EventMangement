@@ -84,6 +84,35 @@ try:
  from PIL import Image
  out=io.BytesIO();Image.new('RGB',(160,160),(230,100,130)).save(out,format='PNG');r=post(creator,'photo.php?id='+str(ce),{'artwork':'cinema'},files={'cover':('safe.png',out.getvalue(),'image/png')});check(r.status_code==302,'safe image uploaded');image=scalar('SELECT image_path FROM events WHERE event_id=?',[ce]);r=get(guest,'media.php?image='+image);check(r.status_code==200 and r.content[:3]==b'\xff\xd8\xff','uploaded image re-encoded to JPEG');check(get(guest,'media.php?image=../../config.php').status_code==404,'image path traversal denied')
 
+ # Create-event upload tile: validation, private JPEG storage, and switching back to a template.
+ form_html=get(creator,'event_form.php').text
+ check('data-artwork-upload-trigger' in form_html and 'enctype="multipart/form-data"' in form_html,
+       'create event has interactive upload tile')
+ custom={'title':'Upload Cover '+stamp,'description':'Creator upload integration test',
+         'start_time':time.strftime('%Y-%m-%dT19:00',time.gmtime(time.time()+86400*30)),
+         'location':'Campus','capacity':'8','category':'Other','artwork':'upload','intent':'save_draft'}
+ check('Choose an image to upload' in post(creator,'event_form.php',custom).text,
+       'upload choice requires a file on a new event')
+ r=post(creator,'event_form.php',custom,
+        files={'cover':('unsafe.svg',b'<svg xmlns="http://www.w3.org/2000/svg"/>','image/svg+xml')})
+ check('JPEG, PNG or WebP' in r.text,'event creation rejects SVG uploads')
+ r=post(creator,'event_form.php',custom,
+        files={'cover':('cover.png',out.getvalue(),'image/png')})
+ check(r.status_code==302,'creator creates a draft with uploaded cover')
+ uploaded_event=int(scalar('SELECT event_id FROM events WHERE title=?',['Upload Cover '+stamp]))
+ upload_record=rows('SELECT artwork,image_path,status FROM events WHERE event_id=?',[uploaded_event])[0]
+ check(upload_record['artwork']=='other' and upload_record['image_path'].endswith('.jpg') and upload_record['status']=='draft',
+       'uploaded image persists while fallback artwork stays valid')
+ check(get(guest,'media.php?image='+upload_record['image_path']).status_code==404,
+       'private draft cover is not public')
+ check(get(creator,'media.php?image='+upload_record['image_path']).content[:3]==b'\xff\xd8\xff',
+       'creator reads safely re-encoded JPEG')
+ change={**custom,'event_id':uploaded_event,'artwork':'gallery'}
+ check(post(creator,'event_form.php',change).status_code==302,'creator switches uploaded cover to template')
+ check(scalar('SELECT image_path FROM events WHERE event_id=?',[uploaded_event]) is None,
+       'switching to illustration clears uploaded cover')
+ check(not (ROOT/'storage/covers'/upload_record['image_path']).exists(),
+       'unused original upload is removed')
  # Preserve features added concurrently on the team branch.
  check(get(admin,'scan.php').status_code==403,'admin cannot perform staff admission work')
  check(get(admin,'attendees.php?event_id='+str(qid)).status_code==403,'admin cannot access working guest list')

@@ -6,12 +6,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
  try{
   $lock=coverStorageLock();
   if(isset($_FILES['cover'])&&($_FILES['cover']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE){
-   $file=$_FILES['cover'];if(!is_scalar($file['error'])||$file['error']!==UPLOAD_ERR_OK||$file['size']>4*1024*1024||!is_uploaded_file($file['tmp_name']))throw new DomainException('Choose a JPEG, PNG or WebP image up to 4 MB.');
-   $info=getimagesize($file['tmp_name']);$mime=(new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-   if(!$info||!in_array($mime,['image/jpeg','image/png','image/webp'],true)||$info[0]>4096||$info[1]>4096||$info[0]<100||$info[1]<100)throw new DomainException('Use a JPEG, PNG or WebP between 100 and 4096 pixels on each side.');
-   $source=imagecreatefromstring(file_get_contents($file['tmp_name']));if(!$source)throw new DomainException('This image could not be read.');
-   $ratio=min(1,1600/max($info[0],$info[1]));$width=(int)round($info[0]*$ratio);$height=(int)round($info[1]*$ratio);$out=imagecreatetruecolor($width,$height);imagecopyresampled($out,$source,0,0,0,0,$width,$height,$info[0],$info[1]);
-   $dir=__DIR__.'/storage/covers';if(!is_dir($dir))mkdir($dir,0700,true);$image=bin2hex(random_bytes(16)).'.jpg';if(!imagejpeg($out,$dir.'/'.$image,88))throw new RuntimeException('Cannot save image.');chmod($dir.'/'.$image,0600);imagedestroy($source);imagedestroy($out);
+   $image=storeUploadedCover($_FILES['cover']);
   }
   $old=withEventLock($pdo,$id,function($locked)use($pdo,$id,$art,$image){if(!$locked||!canEditEvent($pdo,$locked))throw new BookingAccessDenied();checkCoverQuota($pdo,(int)$locked['organiser_id'],$image,$locked['image_path']);$pdo->prepare('UPDATE events SET artwork=?,image_path=?,poster_path=NULL WHERE event_id=?')->execute([$art,$image,$id]);audit($pdo,'event.artwork',$id);return $locked['image_path'];});
   $image=null;removeUnusedCover($pdo,$old);flock($lock,LOCK_UN);fclose($lock);$lock=null;

@@ -1,7 +1,7 @@
 <?php
 require __DIR__.'/includes/bootstrap.php';requireLogin();require_once __DIR__.'/includes/account_deletion.php';$error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
-    if(postString('confirmation')!=='Delete')$error='Type [Delete] exactly to confirm.';
+    if(postString('confirmation')!=='Delete')$error='Type Delete exactly to confirm.';
     elseif(!reauthenticate($pdo,postString('password'),trim(postString('code'))))$error='Password or verification code is incorrect.';
     else try{deleteOwnAccount($pdo,(int)currentUser()['user_id'],(int)$_SESSION['auth_version']);resetSession();flash('Your account was deleted. You have been signed out.');redirect('index.php');}catch(DomainException $e){$error=$e->getMessage();}
 }

@@ -4,10 +4,21 @@ $config=require __DIR__.'/../config.php';if(($config['app_env']??'')!=='developm
 date_default_timezone_set($config['timezone']??'Asia/Hong_Kong');
 $options=[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION];if(!empty($config['db_ssl_ca'])){$options[PDO::MYSQL_ATTR_SSL_CA]=$config['db_ssl_ca'];$options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]=true;}
 $pdo=new PDO('mysql:host='.$config['db_host'].';port='.($config['db_port']?:3306).';dbname='.$config['db_name'].';charset=utf8mb4',$config['db_user'],$config['db_pass'],$options);
-$password=getenv('EVENTLINK_DEMO_PASSWORD')?:'Demo!'.bin2hex(random_bytes(10));$hash=password_hash($password,PASSWORD_BCRYPT,['cost'=>12]);
-foreach(['user'=>'Alex Guest','creator'=>'North Campus Collective','staff'=>'Jordan Staff','admin'=>'Fairboard Admin']as $role=>$name){
- $email=$role.'@fairboard.test';$q=$pdo->prepare('INSERT IGNORE INTO users(name,email,password_hash,role,email_verified_at) VALUES(?,?,?,?,NOW())');$q->execute([$name,$email,$hash,$role]);
- echo $email.($q->rowCount()?" created; password: $password":" already exists; unchanged")."\n";
+// Fixed development-only credentials. A shared override is available for isolated CI tests.
+$sharedPassword = getenv('EVENTLINK_DEMO_PASSWORD');
+$demoAccounts = [
+    'admin'   => ['Fairboard Admin', 'AdminP@ssw0rd'],
+    'staff'   => ['Jordan Staff', 'StaffP@ssw0rd'],
+    'creator' => ['North Campus Collective', 'CreatorP@ssw0rd'],
+    'user'    => ['Alex Guest', 'UserP@ssw0rd'],
+];
+foreach ($demoAccounts as $role => [$name, $defaultPassword]) {
+    $email = $role . '@fairboard.test';
+    $password = $sharedPassword !== false && $sharedPassword !== '' ? $sharedPassword : $defaultPassword;
+    $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    $q = $pdo->prepare('INSERT IGNORE INTO users(name,email,password_hash,role,email_verified_at) VALUES(?,?,?,?,NOW())');
+    $q->execute([$name, $email, $hash, $role]);
+    echo $email . ($q->rowCount() ? " created" : " already exists; credentials unchanged") . "\n";
 }
 $uid=fn($role)=>(int)$pdo->query("SELECT user_id FROM users WHERE email=".$pdo->quote($role.'@fairboard.test'))->fetchColumn();$creator=$uid('creator');
 $pdo->prepare("INSERT IGNORE INTO creator_plans(user_id,organisation_name,plan_code)VALUES(?,'North Campus Collective','external_monthly')")->execute([$creator]);

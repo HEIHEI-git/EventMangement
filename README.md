@@ -15,7 +15,7 @@ A PHP + MySQL community event platform with a cinematic discovery interface, com
 2. Copy `config.example.php` to the gitignored `config.php`. Set database credentials, the complete `base_url` (including a subdirectory if applicable) and timezone.
 3. Generate a private application key with `php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"` and paste it into `app_key`. Keep it out of Git and preserve it across deployments.
 4. Run `composer install --no-dev`.
-5. For development, optionally run `php tools/seed_demo.php`. It creates sample events and prints a randomly generated password for newly created `.test` accounts. Existing accounts are not overwritten.
+5. For development, optionally run `php tools/dome_seed.php` (or `php tools/seed_demo.php`). It creates sample events and four `.test` accounts with documented role-specific default passwords. Existing accounts are not overwritten. **Never expose these known demo credentials on a public deployment.** See [demo credentials and full reset procedure](docs/DEMO_RESET_JA.md).
 6. Start `php -S 127.0.0.1:8080 router.php` and set `base_url` to `http://127.0.0.1:8080`, or serve with Apache and the included `.htaccess`.
 
 For an existing database, back up both the database and uploaded covers and any existing `uploads/` posters, install the code/dependencies, then run:

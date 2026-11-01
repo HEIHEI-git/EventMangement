@@ -43,7 +43,7 @@ These screenshots were captured from the running application with demo data:
 
 ## Reproduce
 
-Follow [README setup and test commands](../README.md#tests), using a separate development database whose name ends in `_test`. Seed demo accounts with the same `EVENTLINK_DEMO_PASSWORD` supplied to the test scripts. Enable the SQL explorer for the seeded admin's actual user ID in that test configuration. The HTTP suite additionally requires `EVENTLINK_TEST_ALLOW_MUTATION=1`.
+Follow [README setup and test commands](../README.md#tests), using a separate development database whose name ends in `_test`. For normal developer runs, seed the documented role-specific demo passwords. For CI, the optional `EVENTLINK_DEMO_PASSWORD` override must match between seeder and test scripts. Enable the SQL explorer for the seeded admin's actual user ID in that test configuration. The HTTP suite additionally requires `EVENTLINK_TEST_ALLOW_MUTATION=1`.
 
 `tests/migration.php` creates and drops its own randomly named test database. The HTTP fixture bridge is CLI-only and refuses a non-development or non-`_test` database. Browser startup uses the same guard. Tests require local PHP, Python requests/Pillow, and Playwright/Chromium; these are development dependencies, not website runtime dependencies. Use four PHP workers to exercise independent simultaneous HTTP requests.
 

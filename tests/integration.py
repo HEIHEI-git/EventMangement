@@ -6,7 +6,7 @@ import os,re,json,time,subprocess,concurrent.futures,hashlib,base64,io
 from pathlib import Path
 import requests
 if os.getenv('EVENTLINK_TEST_ALLOW_MUTATION')!='1':raise SystemExit('Set EVENTLINK_TEST_ALLOW_MUTATION=1 for the dedicated test database.')
-ROOT=Path(__file__).resolve().parents[1];URL=os.getenv('EVENTLINK_TEST_URL','http://127.0.0.1:8080');PASSWORD='TestAccount!2026';DEMO=os.getenv('EVENTLINK_DEMO_PASSWORD','FairboardDemo!2026');checks=[]
+ROOT=Path(__file__).resolve().parents[1];URL=os.getenv('EVENTLINK_TEST_URL','http://127.0.0.1:8080');PASSWORD='TestAccount!2026';DEMO=os.getenv('EVENTLINK_DEMO_PASSWORD','AdminP@ssw0rd');checks=[]
 def db(sql,params=()):
  r=subprocess.run(['php',str(ROOT/'tests/db_fixture.php')],input=json.dumps({'sql':sql,'params':list(params)}),text=True,capture_output=True,check=True)
  return json.loads(r.stdout)

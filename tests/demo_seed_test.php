@@ -10,6 +10,7 @@ if((int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn()||(int)$pdo->que
  fwrite(STDERR,"Refusing a nonempty test database; import the fresh schema first.\n");exit(1);
 }
 $passwords=['user'=>'UserP@ssw0rd','creator'=>'CreatorP@ssw0rd','staff'=>'StaffP@ssw0rd','admin'=>'AdminP@ssw0rd'];
+foreach(range(2,6) as $i)$passwords['admin'.$i]='AdminP@ssw0rd';
 $check=function(bool $ok,string $label):void{if(!$ok)throw new RuntimeException($label);echo "PASS: $label\n";};
 $seed=function(array $args=[],?string $override=null,bool $success=true):void{
  $env=getenv();unset($env['EVENTLINK_DEMO_PASSWORD']);if($override!==null)$env['EVENTLINK_DEMO_PASSWORD']=$override;
@@ -21,10 +22,10 @@ $seed=function(array $args=[],?string $override=null,bool $success=true):void{
 $users=fn()=>$pdo->query('SELECT * FROM users ORDER BY user_id')->fetchAll();
 $events=fn()=>$pdo->query('SELECT * FROM events ORDER BY event_id')->fetchAll();
 $seed();$initialUsers=$users();$initialEvents=$events();
-$check(count($initialUsers)===4&&count($initialEvents)===9,'fresh seed creates four accounts and nine events');
+$check(count($initialUsers)===9&&count($initialEvents)===9,'fresh seed creates nine accounts and nine events');
 foreach($initialUsers as $i=>$row){
- $role=array_keys($passwords)[$i];
- $check($row['email']==="$role@fairboard.test"&&$row['role']===$role&&password_verify($passwords[$role],$row['password_hash']),"$role uses its documented password and retains its role");
+ $login=array_keys($passwords)[$i];$role=$i>=3?'admin':$login;
+ $check($row['email']==="$login@fairboard.test"&&$row['role']===$role&&password_verify($passwords[$role],$row['password_hash']),"$role uses its documented password and retains its role");
 }
 $check((int)$initialUsers[3]['user_id']===4,'fresh admin ID remains compatible with the CI developer allowlist');
 $seed(['--reset-password'],null,false);
@@ -45,12 +46,12 @@ $before=$users();$mfa=$pdo->query('SELECT * FROM user_mfa')->fetchAll();
 $seed();
 $check($users()===$before,'ordinary reseeding preserves changed passwords and account settings');
 $seed(['--reset-passwords']);$after=$users();
-foreach(array_slice($after,0,4) as $i=>$row){
+foreach(array_slice($after,0,9) as $i=>$row){
  $check(password_verify($passwords[$row['role']],$row['password_hash'])&&(int)$row['auth_version']===(int)$before[$i]['auth_version']+1,$row['role'].' password reset invalidates existing sessions');
  unset($row['password_hash'],$row['auth_version']);$old=$before[$i];unset($old['password_hash'],$old['auth_version']);
  $check($row===$old,$row['role'].' reset preserves account settings');
 }
-$check($after[4]===$before[4],'reset leaves non-demo accounts unchanged');
+$check($after[9]===$before[9],'reset leaves non-demo accounts unchanged');
 $check($pdo->query('SELECT * FROM user_mfa')->fetchAll()===$mfa,'reset retains the existing authenticator and recovery hashes');
 $check((int)$pdo->query('SELECT COUNT(*) FROM account_tokens WHERE user_id=4')->fetchColumn()===0&&(int)$pdo->query('SELECT COUNT(*) FROM account_tokens')->fetchColumn()===1,'reset revokes only demo password-reset tokens');
 $check($events()===$initialEvents,'reseeding and password resets preserve existing events');
@@ -60,7 +61,7 @@ $seed(['--reset-passwords'],null,false);
 $check($users()===$beforeMismatch,'role mismatch rolls back all demo password changes without promoting accounts');
 $pdo->exec("UPDATE users SET role='admin' WHERE email='admin@fairboard.test'");
 $seed(['--reset-passwords'],'Compatibility!2026');
-foreach(array_slice($users(),0,4) as $row)$check(password_verify('Compatibility!2026',$row['password_hash']),$row['role'].' accepts the shared environment override');
+foreach(array_slice($users(),0,9) as $row)$check(password_verify('Compatibility!2026',$row['password_hash']),$row['role'].' accepts the shared environment override');
 
 // Leave the documented demo ready for the subsequent HTTP regressions.
 $pdo->prepare('DELETE FROM users WHERE user_id=?')->execute([$otherId]);

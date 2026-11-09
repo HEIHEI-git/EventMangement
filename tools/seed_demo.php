@@ -13,12 +13,19 @@ $accounts=[
  'creator'=>['North Campus Collective','CreatorP@ssw0rd'],
  'staff'=>['Jordan Staff','StaffP@ssw0rd'],
  'admin'=>['Fairboard Admin','AdminP@ssw0rd'],
+ 'admin2'=>['Fairboard Admin 2','AdminP@ssw0rd'],
+ 'admin3'=>['Fairboard Admin 3','AdminP@ssw0rd'],
+ 'admin4'=>['Fairboard Admin 4','AdminP@ssw0rd'],
+ 'admin5'=>['Fairboard Admin 5','AdminP@ssw0rd'],
+ 'admin6'=>['Fairboard Admin 6','AdminP@ssw0rd'],
+
 ];
 $messages=[];
 $pdo->beginTransaction();
 try{
- foreach($accounts as $role=>[$name,$defaultPassword]){
-  $email=$role.'@fairboard.test';
+ foreach($accounts as $login=>[$name,$defaultPassword]){
+  $role=in_array($login,['admin','admin2','admin3','admin4','admin5','admin6'],true)?'admin':$login;
+  $email=$login.'@fairboard.test';
   $q=$pdo->prepare('SELECT user_id,role FROM users WHERE email=? FOR UPDATE');$q->execute([$email]);$existing=$q->fetch(PDO::FETCH_ASSOC);
   if($existing&&$existing['role']!==$role)throw new RuntimeException("Demo role mismatch for $email; no demo accounts were changed.");
   if($existing&&!$resetPasswords){$messages[]="$email already exists; unchanged";continue;}

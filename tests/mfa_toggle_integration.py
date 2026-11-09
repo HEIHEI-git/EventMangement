@@ -97,7 +97,7 @@ def main():
 
             toggle(True)
             with (temp / 'server.log').open('w+') as log:
-                server = subprocess.Popen([PHP, '-d', 'opcache.enable_cli=0', '-d',
+                server = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-d', 'opcache.enable_cli=0', '-d',
                     f'session.save_path={sessions}', '-S', f'127.0.0.1:{port}', '-t', str(app)],
                     stdout=log, stderr=log, env={k: v for k, v in os.environ.items()
                                                if k != 'PHP_CLI_SERVER_WORKERS'})

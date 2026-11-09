@@ -48,3 +48,4 @@ jobs:
           for i in $(seq 1 20); do curl --fail --silent http://127.0.0.1:8080/index.php > /dev/null && break || sleep 1; done
           python3 tests/defense_integration.py
           python3 tests/integration.py
+          python3 tests/mfa_toggle_integration.py

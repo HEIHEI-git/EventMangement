@@ -3,6 +3,23 @@ declare(strict_types=1);
 require __DIR__.'/../includes/security.php';require __DIR__.'/../includes/mfa.php';
 $config=['app_key'=>str_repeat('unit-test-key-',4)];$checks=0;
 function verify(bool $ok,string $name):void{global $checks;if(!$ok)throw new RuntimeException($name);$checks++;echo "PASS $name\n";}
+verify(mfaFeatureEnabled(),'MFA enabled when switch and environment are missing');
+$config['app_env']='development';
+verify(mfaFeatureEnabled(),'existing development config keeps MFA enabled');
+$config['mfa_enabled']=false;
+verify(!mfaFeatureEnabled(),'explicit false pauses MFA in development');
+verify(secondFactorField()==='','paused MFA hides the second-factor field');
+foreach(['production','staging','',null]as $environment){
+    $config['app_env']=$environment;
+    verify(mfaFeatureEnabled(),'MFA cannot be paused outside development: '.var_export($environment,true));
+}
+$config['app_env']='development';
+foreach([true,'false','off',0,'0',null,[]]as $value){
+    $config['mfa_enabled']=$value;
+    verify(mfaFeatureEnabled(),'only boolean false pauses MFA: '.var_export($value,true));
+}
+$config['mfa_enabled']=true;
+verify(str_contains(secondFactorField(),'name="code"'),'restored MFA shows the second-factor field');
 $secret=base32Encode('12345678901234567890');
 verify($secret==='GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ','standard Base32 encoding');
 verify(base32Decode($secret)==='12345678901234567890','standard Base32 decoding');

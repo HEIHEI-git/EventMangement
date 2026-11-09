@@ -112,6 +112,7 @@ The earlier `SECURITY_RELEASE.md`, `TESTING.md`, `security_test_results.json` an
 composer test
 php tests/migration.php
 EVENTLINK_TEST_ALLOW_MUTATION=1 python3 tests/integration.py
+EVENTLINK_TEST_ALLOW_MUTATION=1 python3 tests/mfa_toggle_integration.py
 node tests/browser.cjs
 ```
 
@@ -126,3 +127,5 @@ Integration/migration tests refuse a non-development database or a database name
 See [39-threat coverage and Ubuntu rollout](docs/DEFENSE_39_JA.md) and [verification results](docs/DEFENSE_TEST_REPORT.md) before upgrading. Run the additive migration before serving requests. Admin/staff require authenticator enrollment; attendees and creators verify their email before booking or creating events. Admins directly create staff login email IDs and receive a temporary password once. Staff replace it on first sign-in and enroll MFA; a mailbox is not required. Admin password reissue invalidates sessions while retaining existing MFA. The developer table viewer displays business records but hides authentication secrets and remains development-only.
 
 Form-check failures now explain possible causes and offer a safe return to a fresh form. See [form recovery design and troubleshooting](docs/FORM_RECOVERY_JA.md).
+
+For temporary development testing, set `'mfa_enabled' => false` alongside `'app_env' => 'development'` in `config.php`, then sign in again. This pauses MFA challenges and mandatory enrollment while preserving enrolled authenticators and recovery codes. Set it back to `true` to restore MFA. The default is `true`; production and other environments always enforce MFA. See [MFA pause/resume instructions](docs/SETUP_JA.md#テスト中にmfaを一時停止する).

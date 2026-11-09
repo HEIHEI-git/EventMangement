@@ -2,6 +2,7 @@
 // Copy to config.php. Never commit credentials. See README.md for XAMPP / Ubuntu.
 return [
     'app_env' => 'development',
+    'mfa_enabled' => true, // false pauses MFA for testing only when app_env is development
     'app_key' => '', // Generate: php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
     'db_host' => '127.0.0.1', 'db_port' => '3306', 'db_name' => 'eventlink',
     'db_user' => 'eventlink', 'db_pass' => '',

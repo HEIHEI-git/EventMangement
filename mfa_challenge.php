@@ -1,5 +1,6 @@
 <?php
 require __DIR__.'/includes/bootstrap.php';
+if (!mfaFeatureEnabled()) redirect('login.php');
 $pending = $_SESSION['mfa_pending'] ?? null;
 if (!$pending || $pending['expires'] < time()) { unset($_SESSION['mfa_pending']); redirect('login.php'); }
 $error = '';

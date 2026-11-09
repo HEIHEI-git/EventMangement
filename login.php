@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                 }
                 $pdo->prepare('DELETE FROM auth_rate_limits WHERE bucket_key=?')->execute([authBucketKey('login-account', $email)]);
-                if (mfaEnabled($pdo, (int)$user['user_id'])) {
+                if (mfaFeatureEnabled() && mfaEnabled($pdo, (int)$user['user_id'])) {
                     resetSession();
                     $_SESSION['mfa_pending'] = ['uid'=>(int)$user['user_id'], 'version'=>(int)$user['auth_version'], 'expires'=>time()+300, 'next'=>$next];
                     csrfToken(); redirect('mfa_challenge.php');

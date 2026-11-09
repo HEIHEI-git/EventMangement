@@ -1,5 +1,10 @@
 <?php
 require __DIR__.'/includes/bootstrap.php'; requireLogin();
+if (!mfaFeatureEnabled()) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') abortRequest(403, 'MFA is temporarily paused for testing.');
+    flash('MFA is temporarily paused for testing. Your authenticator settings are saved.');
+    redirect('account.php');
+}
 $uid=(int)currentUser()['user_id']; $enabled=mfaEnabled($pdo,$uid); $required=in_array(currentUser()['role'],['admin','staff'],true); $error=''; $codes=[];
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $action=postString('action');

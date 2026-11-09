@@ -16,7 +16,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
             $pdo->prepare('UPDATE users SET password_hash=?,must_change_password=0,auth_version=auth_version+1 WHERE user_id=?')->execute([password_hash($password,PASSWORD_BCRYPT,['cost'=>12]),$uid]);
             $pdo->prepare('DELETE FROM account_tokens WHERE user_id=?')->execute([$uid]);audit($pdo,'staff.initial_password_changed',$uid);$pdo->commit();
             $_SESSION['auth_version']++;$_SESSION['user']['must_change_password']=0;$_SESSION['reauthenticated_at']=time();session_regenerate_id(true);unset($_SESSION['csrf_token']);csrfToken();
-            $hasMfa=mfaEnabled($pdo,$uid);flash($hasMfa?'Your own password is saved.':'Your own password is saved. Complete authenticator setup to continue.');redirect($hasMfa?'staff.php':'mfa.php');
+            $needsMfa=mfaFeatureEnabled()&&!mfaEnabled($pdo,$uid);flash($needsMfa?'Your own password is saved. Complete authenticator setup to continue.':'Your own password is saved.');redirect($needsMfa?'mfa.php':'staff.php');
         }catch(DomainException $e){if($pdo->inTransaction())$pdo->rollBack();$error=$e->getMessage();}
         catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
     }

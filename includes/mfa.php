@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 
+/** Keep enrollment data separate from the temporary development-only switch. */
+function mfaFeatureEnabled(): bool {
+    global $config;
+    return !(($config['app_env'] ?? '') === 'development' && ($config['mfa_enabled'] ?? true) === false);
+}
+
 function base32Encode(string $bytes): string {
     $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; $bits = ''; $result = '';
     foreach (str_split($bytes) as $byte) $bits .= str_pad(decbin(ord($byte)), 8, '0', STR_PAD_LEFT);
@@ -82,7 +88,7 @@ function reauthenticate(PDO $pdo, string $password, string $code): bool {
     try {
         $q = $pdo->prepare('SELECT auth_version FROM users WHERE user_id=? AND is_active=1 FOR UPDATE'); $q->execute([$uid]); $version = $q->fetchColumn();
         $valid = $version !== false && (int)$version === (int)$_SESSION['auth_version'] && verifyCurrentPassword($pdo, $uid, $password)
-            && (!mfaEnabled($pdo, $uid) || consumeSecondFactor($pdo, $uid, $code));
+            && (!mfaFeatureEnabled() || !mfaEnabled($pdo, $uid) || consumeSecondFactor($pdo, $uid, $code));
         $pdo->commit();
         if ($valid) $_SESSION['reauthenticated_at'] = time();
         else securityEvent('auth.reauth_failed', $uid);
@@ -95,5 +101,6 @@ function requireRecentAuthentication(): void {
     }
 }
 function secondFactorField(): string {
+    if (!mfaFeatureEnabled()) return '';
     return '<label for="mfa-code">Authenticator or recovery code (if enabled)</label><input id="mfa-code" name="code" autocomplete="one-time-code" maxlength="16"><p class="fine-print">Each code works once. Wait for a new code if you just signed in.</p>';
 }

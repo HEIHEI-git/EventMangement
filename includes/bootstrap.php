@@ -65,6 +65,11 @@ require_once __DIR__ . '/accounts.php';
 require_once __DIR__ . '/mfa.php';
 require_once __DIR__ . '/tickets.php';
 
+// A session used while MFA is paused must not retain proof of a second factor.
+if (!mfaFeatureEnabled()) {
+    unset($_SESSION['mfa_verified'], $_SESSION['mfa_pending'], $_SESSION['mfa_setup']);
+}
+
 // Refresh roles on each request so a database role change takes effect immediately.
 if (isLoggedIn()) {
     try {
@@ -82,12 +87,12 @@ if (isLoggedIn()) {
 }
 
 if (isLoggedIn()) {
-    $hasMfa = mfaEnabled($pdo, (int)currentUser()['user_id']);
+    $hasMfa = mfaFeatureEnabled() && mfaEnabled($pdo, (int)currentUser()['user_id']);
     if ($hasMfa && empty($_SESSION['mfa_verified'])) { resetSession(); redirect('login.php'); }
     if (!empty(currentUser()['must_change_password'])) {
         if (!in_array(basename($_SERVER['SCRIPT_NAME'] ?? ''), ['change_initial_password.php','logout.php'], true)) redirect('change_initial_password.php');
         return; // Password replacement precedes enrollment; staff actions remain unavailable.
     }
-    if (!$hasMfa && in_array(currentUser()['role'], ['admin','staff'], true)
+    if (mfaFeatureEnabled() && !$hasMfa && in_array(currentUser()['role'], ['admin','staff'], true)
         && !in_array(basename($_SERVER['SCRIPT_NAME'] ?? ''), ['mfa.php','logout.php'], true)) redirect('mfa.php');
 }

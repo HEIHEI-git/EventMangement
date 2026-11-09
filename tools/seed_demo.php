@@ -9,22 +9,23 @@ $pdo=new PDO('mysql:host='.$config['db_host'].';port='.($config['db_port']?:3306
 $sharedPassword=getenv('EVENTLINK_DEMO_PASSWORD')?:null;
 // Keep this order so fresh development databases retain the existing demo IDs.
 $accounts=[
- 'user'=>['Alex Guest','UserP@ssw0rd'],
- 'creator'=>['North Campus Collective','CreatorP@ssw0rd'],
- 'staff'=>['Jordan Staff','StaffP@ssw0rd'],
- 'admin'=>['Fairboard Admin','AdminP@ssw0rd'],
- 'admin2'=>['Fairboard Admin 2','AdminP@ssw0rd'],
- 'admin3'=>['Fairboard Admin 3','AdminP@ssw0rd'],
- 'admin4'=>['Fairboard Admin 4','AdminP@ssw0rd'],
- 'admin5'=>['Fairboard Admin 5','AdminP@ssw0rd'],
- 'admin6'=>['Fairboard Admin 6','AdminP@ssw0rd'],
-
+ 'user'=>['Alex Guest','UserP@ssw0rd','user'],
+ 'creator'=>['North Campus Collective','CreatorP@ssw0rd','creator'],
+ 'staff'=>['Jordan Staff','StaffP@ssw0rd','staff'],
+ 'admin'=>['Fairboard Admin','AdminP@ssw0rd','admin'],
+ 'admin2'=>['Fairboard Admin 2','AdminP@ssw0rd','admin'],
+ 'admin3'=>['Fairboard Admin 3','AdminP@ssw0rd','admin'],
+ 'admin4'=>['Fairboard Admin 4','AdminP@ssw0rd','admin'],
+ 'admin5'=>['Fairboard Admin 5','AdminP@ssw0rd','admin'],
+ 'admin6'=>['Fairboard Admin 6','AdminP@ssw0rd','admin'],
 ];
+foreach(['user','creator','staff'] as $role){
+ for($i=2;$i<=6;$i++)$accounts[$role.$i]=[$accounts[$role][0].' '.$i,$accounts[$role][1],$role];
+}
 $messages=[];
 $pdo->beginTransaction();
 try{
- foreach($accounts as $login=>[$name,$defaultPassword]){
-  $role=in_array($login,['admin','admin2','admin3','admin4','admin5','admin6'],true)?'admin':$login;
+ foreach($accounts as $login=>[$name,$defaultPassword,$role]){
   $email=$login.'@fairboard.test';
   $q=$pdo->prepare('SELECT user_id,role FROM users WHERE email=? FOR UPDATE');$q->execute([$email]);$existing=$q->fetch(PDO::FETCH_ASSOC);
   if($existing&&$existing['role']!==$role)throw new RuntimeException("Demo role mismatch for $email; no demo accounts were changed.");
@@ -45,9 +46,13 @@ try{
  throw $e;
 }
 echo implode("\n",$messages)."\n";
-$uid=fn($role)=>(int)$pdo->query("SELECT user_id FROM users WHERE email=".$pdo->quote($role.'@fairboard.test'))->fetchColumn();$creator=$uid('creator');
-$pdo->prepare("INSERT IGNORE INTO creator_plans(user_id,organisation_name,plan_code)VALUES(?,'North Campus Collective','external_monthly')")->execute([$creator]);
-$pdo->prepare('INSERT IGNORE INTO staff_assignments(staff_user_id,creator_user_id)VALUES(?,?)')->execute([$uid('staff'),$creator]);
+$uid=fn($login)=>(int)$pdo->query("SELECT user_id FROM users WHERE email=".$pdo->quote($login.'@fairboard.test'))->fetchColumn();
+foreach(['','2','3','4','5','6'] as $suffix){
+ $creatorId=$uid('creator'.$suffix);
+ $pdo->prepare("INSERT IGNORE INTO creator_plans(user_id,organisation_name,plan_code)VALUES(?,?,'external_monthly')")->execute([$creatorId,$accounts['creator'.$suffix][0]]);
+ $pdo->prepare('INSERT IGNORE INTO staff_assignments(staff_user_id,creator_user_id)VALUES(?,?)')->execute([$uid('staff'.$suffix),$creatorId]);
+}
+$creator=$uid('creator');
 $events=[
  ['After Hours: Live Sessions','Music','concert','Student Union Hall',80,3,'A room full of good music and better company. Join student bands and guest artists for an intimate evening of live sets. Doors open 30 minutes early. Bring your friends and discover your next favourite sound.'],
  ['Cinema Under the Stars','Film','cinema','Harbour Rooftop',60,5,'A night for film lovers. Settle in for independent short films, a conversation with the filmmakers, and a skyline worth staying up for. Bring a light jacket; seating is provided.'],

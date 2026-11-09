@@ -40,7 +40,10 @@ def create(name,role='user'):
 try:
  db('DELETE FROM auth_rate_limits')
  for role in DEMO_PASSWORDS:
-  demo=login(role+'@fairboard.test',demo_password(role));demo.close()
+  for demo_suffix in ['', '2', '3', '4', '5', '6']:
+   demo=login(role+demo_suffix+'@fairboard.test',demo_password(role));demo.close()
+ # The login matrix is a separate scenario from the remaining HTTP regressions.
+ db('DELETE FROM auth_rate_limits')
  guest=requests.Session();r=get(guest,'index.php');check(r.status_code==200 and 'Less scrolling.' in r.text,'public discovery renders');check("script-src 'self'" in r.headers.get('Content-Security-Policy',''),'strict self-hosted CSP');check(r.headers.get('X-Content-Type-Options')=='nosniff','nosniff header');check('HttpOnly' in r.headers.get('Set-Cookie','') and 'SameSite=Lax' in r.headers.get('Set-Cookie',''),'cookie security flags')
  for path in ['config.php','security_test_results.json','database.sql','database/release_tables.sql','tools/migrate.php','tests/db_fixture.php','storage/mail/example.txt','includes/security.php','.git/config','composer.lock']:
   check(get(guest,path).status_code==404,'private file blocked '+path)

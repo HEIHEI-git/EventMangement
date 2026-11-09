@@ -12,7 +12,7 @@
 
 QR の修正は `includes/tickets.php` と `tests/integration.py` に含まれます。php-qrcode 6 の SVG レンダラーを指定し、XML 宣言を含む SVG 出力を受け入れます。
 
-固定デモアカウントの PR #20 は未マージで閉じられています。その元のコミットも archive に保存します。現行 `main` の `tools/seed_demo.php` は、[セットアップガイド](SETUP_JA.md#デモデータ) の役割別デモパスワードを使用します。通常は既存アカウントを保持し、`--reset-passwords` を付けた場合だけ9つのデモアカウントのパスワードを再設定します。`EVENTLINK_DEMO_PASSWORD` による共通値の上書きにも対応します。
+固定デモアカウントの PR #20 は未マージで閉じられています。その元のコミットも archive に保存します。現行 `main` の `tools/seed_demo.php` は、[セットアップガイド](SETUP_JA.md#デモデータ) の役割別デモパスワードを使用します。通常は既存アカウントを保持し、`--reset-passwords` を付けた場合だけ24件のデモアカウントのパスワードを再設定します。`EVENTLINK_DEMO_PASSWORD` による共通値の上書きにも対応します。
 
 ## ブランチ整理のルール
 

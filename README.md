@@ -43,8 +43,25 @@ With `app_env=development`, `php tools/seed_demo.php` creates these shared demo 
 | `admin5@fairboard.test` | `AdminP@ssw0rd` |
 | `admin6@fairboard.test` | `AdminP@ssw0rd` |
 | `staff@fairboard.test` | `StaffP@ssw0rd` |
+| `staff2@fairboard.test` | `StaffP@ssw0rd` |
+| `staff3@fairboard.test` | `StaffP@ssw0rd` |
+| `staff4@fairboard.test` | `StaffP@ssw0rd` |
+| `staff5@fairboard.test` | `StaffP@ssw0rd` |
+| `staff6@fairboard.test` | `StaffP@ssw0rd` |
 | `creator@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator2@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator3@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator4@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator5@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator6@fairboard.test` | `CreatorP@ssw0rd` |
 | `user@fairboard.test` | `UserP@ssw0rd` |
+| `user2@fairboard.test` | `UserP@ssw0rd` |
+| `user3@fairboard.test` | `UserP@ssw0rd` |
+| `user4@fairboard.test` | `UserP@ssw0rd` |
+| `user5@fairboard.test` | `UserP@ssw0rd` |
+| `user6@fairboard.test` | `UserP@ssw0rd` |
+
+Each numbered creator has an organisation plan. Staff are assigned to the matching creator (`staff2` → `creator2`, through `staff6` → `creator6`); the unnumbered pair stays linked. The original nine sample events remain with `creator@fairboard.test`. Numbered creators can create their own events.
 
 To apply these passwords to existing demo accounts after updating the code, run:
 
@@ -52,9 +69,9 @@ To apply these passwords to existing demo accounts after updating the code, run:
 php tools/seed_demo.php --reset-passwords
 ```
 
-This resets only the nine demo accounts, revokes their existing sessions and password-reset links, and preserves their roles, MFA, account settings and existing events. A mismatched demo role stops the operation without changing any accounts. Admin/staff still require authenticator enrollment or their existing MFA. The reset does not reactivate disabled accounts or clear a required password change.
+This resets only the 24 demo accounts, revokes their existing sessions and password-reset links, and preserves their roles, MFA, account settings and existing events. A mismatched demo role stops the operation without changing any accounts. Admin/staff still require authenticator enrollment or their existing MFA. The reset does not reactivate disabled accounts or clear a required password change.
 
-A nonempty `EVENTLINK_DEMO_PASSWORD` overrides all nine passwords with one shared value for either command. Unset it to use the table above. These public credentials are for development demos only; the seeder refuses production mode.
+A nonempty `EVENTLINK_DEMO_PASSWORD` overrides all 24 passwords with one shared value for either command. Unset it to use the table above. These public credentials are for development demos only; the seeder refuses production mode.
 
 ## What works
 
@@ -115,7 +132,7 @@ EVENTLINK_TEST_ALLOW_MUTATION=1 python3 tests/integration.py
 node tests/browser.cjs
 ```
 
-`EVENTLINK_TEST_ALLOW_MUTATION=1 php tests/demo_seed_test.php` checks default passwords, repeat seeding, explicit resets, account/MFA preservation, rollback and the shared override. Run it only against an empty, freshly imported `_test` database; it leaves the four default demo accounts ready for the HTTP tests.
+`EVENTLINK_TEST_ALLOW_MUTATION=1 php tests/demo_seed_test.php` checks default passwords, repeat seeding, explicit resets, account/MFA preservation, rollback and the shared override. Run it only against an empty, freshly imported `_test` database; it leaves the 24 default demo accounts ready for the HTTP tests.
 
 Integration/migration tests refuse a non-development database or a database name not ending in `_test`. Create a dedicated test database, seed it, and run a local server first. The HTTP suite needs Python `requests` and `Pillow`; the browser suite needs Playwright and Chromium. Use `EVENTLINK_TEST_URL`, `EVENTLINK_DEMO_PASSWORD`, and optionally `CHROMIUM_EXECUTABLE`. On Linux use `PHP_CLI_SERVER_WORKERS=4` for genuine parallel HTTP checks. Never run these mutation tests against real user data. Test artefacts go to gitignored `test-results/`.
 

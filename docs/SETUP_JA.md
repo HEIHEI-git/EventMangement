@@ -94,10 +94,27 @@ php tools/seed_demo.php
 | `admin5@fairboard.test` | `AdminP@ssw0rd` |
 | `admin6@fairboard.test` | `AdminP@ssw0rd` |
 | `staff@fairboard.test` | `StaffP@ssw0rd` |
+| `staff2@fairboard.test` | `StaffP@ssw0rd` |
+| `staff3@fairboard.test` | `StaffP@ssw0rd` |
+| `staff4@fairboard.test` | `StaffP@ssw0rd` |
+| `staff5@fairboard.test` | `StaffP@ssw0rd` |
+| `staff6@fairboard.test` | `StaffP@ssw0rd` |
 | `creator@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator2@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator3@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator4@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator5@fairboard.test` | `CreatorP@ssw0rd` |
+| `creator6@fairboard.test` | `CreatorP@ssw0rd` |
 | `user@fairboard.test` | `UserP@ssw0rd` |
+| `user2@fairboard.test` | `UserP@ssw0rd` |
+| `user3@fairboard.test` | `UserP@ssw0rd` |
+| `user4@fairboard.test` | `UserP@ssw0rd` |
+| `user5@fairboard.test` | `UserP@ssw0rd` |
+| `user6@fairboard.test` | `UserP@ssw0rd` |
 
-コード更新後、既存の9つのデモアカウントにも上記のパスワードを設定する場合:
+各Creatorに主催者プランを作成し、`staff2 → creator2` から `staff6 → creator6` まで同じ番号で担当を設定します。番号なしの組み合わせはそのままです。既存の9イベントは `creator@fairboard.test` が所有し、追加Creatorは自分のイベントを作成できます。
+
+コード更新後、既存の24件のデモアカウントにも上記のパスワードを設定する場合:
 
 ```bash
 php tools/seed_demo.php --reset-passwords
@@ -105,7 +122,7 @@ php tools/seed_demo.php --reset-passwords
 
 対象の既存セッションとパスワード再設定リンクは失効します。MFA、権限、アカウント設定、既存イベントは保持します。メールアドレスと権限が対応しない場合は、アカウントの変更をすべて取り消して停止します。無効化されたアカウントの再有効化や、初回パスワード変更要求の解除は行いません。admin / staff の MFA 登録・確認は引き続き必要です。
 
-`EVENTLINK_DEMO_PASSWORD` に空でない値を設定している場合は、9アカウントすべてでその値を使用します。表の値を使う場合は、この環境変数を解除してください。公開されたデモ用の認証情報なので、開発環境だけで利用してください。
+`EVENTLINK_DEMO_PASSWORD` に空でない値を設定している場合は、24アカウントすべてでその値を使用します。表の値を使う場合は、この環境変数を解除してください。公開されたデモ用の認証情報なので、開発環境だけで利用してください。
 
 ## 開発者用「SQL」ボタン
 

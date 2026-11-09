@@ -85,7 +85,7 @@ try:
  # Demo users may fill the first page; follow the rendered pagination to our fixture.
  seen_pages={r.url}
  while u1_email not in r.text:
-  next_page=re.search(r'href="\?table=users&amp;page=(\d+)">Next',r.text)
+  next_page=re.search(r'href="\?table=users&(?:amp;)?page=(\d+)">Next',r.text)
   check(next_page is not None,'developer pagination can reach the fixture user')
   r=get(admin,'developer.php?table=users&page='+next_page.group(1))
   check(r.status_code==200 and r.url not in seen_pages,'developer pagination advances');seen_pages.add(r.url)

@@ -37,6 +37,11 @@ With `app_env=development`, `php tools/seed_demo.php` creates these shared demo 
 | Email | Password |
 |---|---|
 | `admin@fairboard.test` | `AdminP@ssw0rd` |
+| `admin2@fairboard.test` | `AdminP@ssw0rd` |
+| `admin3@fairboard.test` | `AdminP@ssw0rd` |
+| `admin4@fairboard.test` | `AdminP@ssw0rd` |
+| `admin5@fairboard.test` | `AdminP@ssw0rd` |
+| `admin6@fairboard.test` | `AdminP@ssw0rd` |
 | `staff@fairboard.test` | `StaffP@ssw0rd` |
 | `creator@fairboard.test` | `CreatorP@ssw0rd` |
 | `user@fairboard.test` | `UserP@ssw0rd` |
@@ -47,9 +52,9 @@ To apply these passwords to existing demo accounts after updating the code, run:
 php tools/seed_demo.php --reset-passwords
 ```
 
-This resets only the four demo accounts, revokes their existing sessions and password-reset links, and preserves their roles, MFA, account settings and existing events. A mismatched demo role stops the operation without changing any accounts. Admin/staff still require authenticator enrollment or their existing MFA. The reset does not reactivate disabled accounts or clear a required password change.
+This resets only the nine demo accounts, revokes their existing sessions and password-reset links, and preserves their roles, MFA, account settings and existing events. A mismatched demo role stops the operation without changing any accounts. Admin/staff still require authenticator enrollment or their existing MFA. The reset does not reactivate disabled accounts or clear a required password change.
 
-A nonempty `EVENTLINK_DEMO_PASSWORD` overrides all four passwords with one shared value for either command. Unset it to use the table above. These public credentials are for development demos only; the seeder refuses production mode.
+A nonempty `EVENTLINK_DEMO_PASSWORD` overrides all nine passwords with one shared value for either command. Unset it to use the table above. These public credentials are for development demos only; the seeder refuses production mode.
 
 ## What works
 
